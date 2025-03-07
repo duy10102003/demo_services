@@ -4,8 +4,10 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 public class MyIntentService extends IntentService {
+    private static final String TAG = "MyIntentService";
     private static final String ACTION_FOO = "com.example.demo_services.action.FOO";
     private static final String ACTION_BAZ = "com.example.demo_services.action.BAZ";
 
@@ -25,8 +27,17 @@ public class MyIntentService extends IntentService {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate: IntentService created");
+        Toast.makeText(this, "IntentService Created", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d("MyIntentService", Thread.currentThread().getName());
+        Log.d(TAG, "onHandleIntent: Thread name = " + Thread.currentThread().getName());
+        Toast.makeText(this, "IntentService is handling work", Toast.LENGTH_SHORT).show();
+
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
@@ -38,18 +49,21 @@ public class MyIntentService extends IntentService {
     }
 
     private void handleActionFoo(String param1, String param2) {
-        Log.d("handleActionFoo", "START");
+        Log.d(TAG, "handleActionFoo: START");
+        Toast.makeText(this, "IntentService: handleActionFoo started", Toast.LENGTH_SHORT).show();
         try {
             Thread.sleep(5000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Log.d("handleActionFoo", "DONE");
+        Log.d(TAG, "handleActionFoo: DONE");
+        Toast.makeText(this, "IntentService: handleActionFoo completed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("handleActionFoo", "onDestroy");
+        Log.d(TAG, "onDestroy: IntentService destroyed");
+        Toast.makeText(this, "IntentService Destroyed", Toast.LENGTH_SHORT).show();
     }
 } 

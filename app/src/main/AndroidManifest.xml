@@ -26,10 +26,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MyUnboundService" />
-        <service android:name=".BoundService" />
+        <service android:name=".MyService" android:exported="false" />
+        <service android:name=".MyIntentService" android:exported="false" />
+        <service android:name=".BoundService" android:exported="false" />
         <service 
             android:name=".ForegroundService"
+            android:exported="false"
             android:foregroundServiceType="specialUse" />
     </application>
 

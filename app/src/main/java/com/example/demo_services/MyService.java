@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class MyService extends Service {
+    private static final String TAG = "MyService";
     private Looper serviceLooper;
     private ServiceHandler serviceHandler;
 
@@ -37,6 +38,8 @@ public class MyService extends Service {
         @Override
         public void handleMessage(Message msg) {
             try {
+                Log.d(TAG, "Service is doing background work...");
+                Toast.makeText(getApplicationContext(), "Service is working...", Toast.LENGTH_SHORT).show();
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -47,18 +50,16 @@ public class MyService extends Service {
 
     @Override
     public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate: Service created");
+        Toast.makeText(this, "Service Created", Toast.LENGTH_SHORT).show();
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.demo_services.CODE4FUNC");
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-            }
         }
-
-        Log.d("MyService", "onCreate");
 
         HandlerThread thread = new HandlerThread("ServiceStartArguments",
                 Process.THREAD_PRIORITY_BACKGROUND);
@@ -70,6 +71,9 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand: Service started");
+        Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+
         Message msg = serviceHandler.obtainMessage();
         msg.arg1 = startId;
         serviceHandler.sendMessage(msg);
@@ -84,7 +88,8 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d("MyService", "onDestroy");
+        Log.d(TAG, "onDestroy: Service destroyed");
+        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_SHORT).show();
         unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
