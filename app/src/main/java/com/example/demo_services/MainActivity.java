@@ -31,15 +31,19 @@ public class MainActivity extends AppCompatActivity {
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Toast.makeText(getApplicationContext(), "onServiceConnected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Service Connected", Toast.LENGTH_SHORT).show();
             mService = new Messenger(service);
             bound = true;
+            btnSendMsg.setEnabled(true);
         }
 
+
+        //call khi ma connection service lost, crash app
         @Override
         public void onServiceDisconnected(ComponentName className) {
             mService = null;
             bound = false;
+            btnSendMsg.setEnabled(false);
         }
     };
 
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         btnStopBoundService = findViewById(R.id.btnStopBoundService);
         btnSendMsg = findViewById(R.id.btnSendMsg);
         btnStartForeground = findViewById(R.id.btnStartForeground);
+
+        btnSendMsg.setEnabled(false);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -77,7 +83,10 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MyService.class);
             stopService(intent);
         });
-
+       //Activity bind vào service thông qua bindService()
+       //Service trả về một IBinder thông qua onBind()
+       //Activity nhận được IBinder và có thể gửi message đến Service
+        // Service xử lý message thông qua IncomingHandler
         btnStartBoundService.setOnClickListener(v -> {
             Intent intent = new Intent(this, BoundService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -87,23 +96,38 @@ public class MainActivity extends AppCompatActivity {
             if (bound) {
                 unbindService(mConnection);
                 bound = false;
+                btnSendMsg.setEnabled(false);
+                Toast.makeText(this, "Service Disconnected", Toast.LENGTH_SHORT).show();
             }
         });
 
         btnSendMsg.setOnClickListener(v -> {
-            Message msg = Message.obtain(null, BoundService.MSG_SAY_HELLO, 0, 0);
-            try {
-                if (mService != null) {
+            if (bound && mService != null) {
+                try {
+                    Message msg = Message.obtain(null, BoundService.MSG_SAY_HELLO, 0, 0);
                     mService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Error sending message", Toast.LENGTH_SHORT).show();
                 }
-            } catch (RemoteException e) {
-                e.printStackTrace();
+            } else {
+                Toast.makeText(this, "Service not bound", Toast.LENGTH_SHORT).show();
             }
         });
 
+        //phai chay tren andorid 8.tro len de su dung startForegroundService
         btnStartForeground.setOnClickListener(v -> {
             Intent intent = new Intent(this, ForegroundService.class);
             startForegroundService(intent);
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bound) {
+            unbindService(mConnection);
+            bound = false;
+        }
     }
 }

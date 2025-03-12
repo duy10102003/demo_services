@@ -79,6 +79,28 @@ public class MyService extends Service {
         serviceHandler.sendMessage(msg);
 
         return START_STICKY;
+         /*
+            -> START_NOT_STICKY.
+
+            Nếu hệ thống kill service khi giá trị này được trả về thì service này không được khởi
+             động lại trừ khi có một Intent đang được chờ ở onStartCommand().
+             Đây là lựa chọn an toàn nhất để tránh chạy Service khi không cần thiết
+             và khi ứng dụng có thể khởi động lại một cách đơn giản các công việc chưa hoàn thành.
+
+            -> START_STICKY.
+
+            Khi giá trị này được trả về trong onStartCommand, nếu service bị hệ thống kill. Nếu onStartCommand không có một intent nào chờ nó nữa thì Service sẽ được hệ thống khởi động lại với một Intent null.
+
+            -> START_REDELEVER_INTENT
+
+            Nếu Service bị kill thì nó sẽ được khởi động lại với một Intent là Intent cuối cùng mà Service được nhận. Điều này thích hợp với các service đang thực hiện công việc muốn tiếp tục ngay tức thì như download fie chẳng hạn. Ngoài 3 giá trị trên thì trong onStartCommand() còn có thêm 2 giá trị trả về nữa là.
+
+            -> START_STICKY_COMPATIBILITY
+
+            Giá trị này cũng giống như START_STICKY nhưng nó không chắc chắn, đảm bảo khởi động lại service.
+
+            -> DEFAULT. Là một sự lựa chọn giữa START_STICKY_COMPATIBILITY hoặc START_STICKY
+        */
     }
 
     @Override
